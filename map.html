@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Map with Waypoints</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css">
+  <link rel="stylesheet" href="style.css">
+  <style>
+   
+  </style>
+</head>
+<body>
+  <div id="map"></div>
+
+  <a href="index.html" class="back-button">Back</a>
+
+  <div class="dropdown">
+    <select id="map-select" onchange="changeMap(this.value)">
+      <option value="map.html">Map 1</option>
+      <option value="map2.html">Map 2</option>
+      <option value="map3.html">Map 3</option>
+    </select>
+  </div>
+
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js"></script>
+  <script src="https://unpkg.com/leaflet-routing-machine@latest/dist/leaflet-routing-machine.js"></script>
+  <script>
+    var map = L.map('map').setView([37.942967, 23.644867], 15);
+    var control;
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+
+    var waypoints = [
+      {latLng: L.latLng(37.937205541883415, 23.644032910378954), name: "Αρχαιολογικό Μουσείο του Πειραιά", href: "http://odysseus.culture.gr/h/1/gh151.jsp?obj_id=3371", image: "Αρχαιολογικό_Μουσείο.jpg"},
+      {latLng: L.latLng(37.94882405905131, 23.647314957671075), name: "Τρούμπα", href: "https://el.wikipedia.org/wiki/Τρούμπα", image: "Τρούμπα.jpg"}, 
+      {latLng: L.latLng(37.94634024469889, 23.634371784385245), name: "Αρχαια Τείχη Πειραιά", href: "https://www.salaminionvima.gr/salamis/2022/11/13/τα-αρχαια-τειχη-του-πειραια/", image: "Αρχαια_Τείχη.jpg"},     
+    ];
+
+    var directionsControl = L.Routing.control({
+      waypoints: waypoints.map(function(waypoint) { return waypoint.latLng; }),
+      lineOptions: {
+        styles: [{ color: 'red', weight: 6 }]
+      },
+      createMarker: function(i, waypoint, n) {
+        var marker = L.marker(waypoint.latLng);
+
+        var popupContent = document.createElement('div');
+        var imageElement = document.createElement('img');
+        imageElement.src = waypoints[i].image;
+        imageElement.style.width = '200px';
+        var nameElement = document.createElement('h3');
+        nameElement.textContent = waypoints[i].name;
+        var linkElement = document.createElement('a');
+        linkElement.href = waypoints[i].href;
+        linkElement.target = '_blank';
+        linkElement.textContent = 'Additional information';
+
+        popupContent.appendChild(imageElement);
+        popupContent.appendChild(nameElement);
+        popupContent.appendChild(linkElement);
+
+        marker.bindPopup(popupContent);
+        return marker;
+      }
+    }).addTo(map);
+
+
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+        waypoints.unshift({ latLng: userLatLng, name: "Your location" });
+        control.setWaypoints(waypoints.map(function(waypoint) { return waypoint.latLng; }));
+      });
+    }
+
+    control._router.options.waypoints.forEach(function(waypoint, index) {
+      waypoint.name = waypoints[index].name;
+    });
+
+    var directionsControlContainer = document.querySelector('.leaflet-routing-container');
+    var toggleDirectionsButton = document.getElementById('toggle-directions');
+
+    toggleDirectionsButton.addEventListener('click', function() {
+      if (directionsControlContainer.style.display === 'none') {
+        directionsControlContainer.style.display = 'block';
+      } else {
+        directionsControlContainer.style.display = 'none';
+      }
+    });
+
+    function changeMap(mapUrl) {
+      window.location.href = mapUrl;
+    }
+  </script>
+</body>
+</html>
