@@ -68,6 +68,15 @@
       }
     }).addTo(map);
 
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(function(position) {
+        var userLatLng = L.latLng(position.coords.latitude, position.coords.longitude);
+        waypoints.unshift({ latLng: userLatLng, name: "Your location" });
+        control.setWaypoints(waypoints.map(function(waypoint) { return waypoint.latLng; }));
+      });
+    }
+
+    
     control._router.options.waypoints.forEach(function(waypoint, index) {
       waypoint.name = waypoints[index].name;
     });
